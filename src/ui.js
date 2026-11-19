@@ -1,3 +1,5 @@
+import { landingHTML } from "./landing.js";
+import { quickHelp } from "./quick-help.js";
 import { evaluateRecovery, validateCatalog, STATUSES } from "./engine.js";
 import { studySchedule, seededShuffle, toCSV } from "./study.js";
 export const escapeHTML = (v) =>
@@ -46,9 +48,8 @@ export async function mountRecoveryModule(
   } = {},
 ) {
   let catalog, tasks, historical;
-  let step = 0,
-    large = false,
-    context = initialContext || {
+  const lifecycle = new AbortController();
+  const defaultContext = () => ({
       goal: "restore",
       provider: "tmobile",
       plan: "postpaid",
@@ -57,7 +58,47 @@ export async function mountRecoveryModule(
         Object.keys(resourceNames).map((k) => [k, "unknown"]),
       ),
       protections: { sim: "unknown", port: "unknown" },
-    };
+    });
+  let context = initialContext || defaultContext();
+  let step = 0, large = false;
+  // Browser history carries only opaque keys. Drafts and answers live in this mount.
+  const screens = new Map();
+  const firstScreen = () => view === "navigator"
+    ? { kind: "checklist", step: 0, context: structuredClone(initialContext || defaultContext()) }
+    : { kind: "home" };
+  let screen = firstScreen();
+  let screenLife = new AbortController();
+  function show(next, moveFocus = true) {
+    screenLife.abort();
+    screenLife = new AbortController();
+    screen = next;
+    if (screen.kind === "home") home();
+    else if (screen.kind === "checklist") {
+      step = screen.step;
+      context = screen.context;
+      navigator();
+    } else openHelp();
+    if (moveFocus) focus();
+  }
+  function visit(next, { reset = false } = {}) {
+    if (reset) screens.clear();
+    const key = crypto.randomUUID();
+    history.pushState({ ...history.state, plrScreen: key }, "");
+    screens.set(key, next);
+    show(next);
+  }
+  function enableHistory() {
+    const key = crypto.randomUUID();
+    history.replaceState({ ...history.state, plrScreen: key }, "");
+    screens.set(key, screen);
+    window.addEventListener("popstate", (event) => {
+      const target = screens.get(event.state?.plrScreen) || firstScreen();
+      if (screen.kind === "home" && target.kind === "home") return;
+      show(target);
+      if (target.kind === "home" && location.hash === "#plr-finders")
+        root.querySelector("#plr-finders")?.focus();
+    }, { signal: lifecycle.signal });
+  }
   let taskIndex = 0,
     practiceAnswer = null,
     study = null,
@@ -81,6 +122,7 @@ export async function mountRecoveryModule(
   window.addEventListener("afterprint", afterPrint);
   const route = (p) => basePath + (p ? p + "/" : "");
   function shell(body) {
+    root.classList.remove("plr-landing");
     root.innerHTML = `<header class="plr-header"><a class="plr-brand" href="${h(route(""))}">${h(brand)}</a><button type="button" data-size aria-pressed="${large}">Larger text</button><nav aria-label="Recovery navigation">${[
       ["navigator", "Navigator"],
       ["practice", "Practice"],
@@ -107,6 +149,12 @@ export async function mountRecoveryModule(
             .trim(),
         );
     }
+    bindSize();
+  }
+  function bindSize() {
+    const button = root.querySelector("[data-size]");
+    button.hidden = false;
+    button.setAttribute("aria-pressed", String(large));
     root.classList.toggle("plr-large", large);
     root.querySelector("[data-size]").onclick = () => {
       large = !large;
@@ -204,41 +252,24 @@ export async function mountRecoveryModule(
       );
       root.querySelector("[data-role-note]").textContent = selected.roleNote;
     });
+    root.querySelector("form").onchange = save;
     root.querySelector("form").onsubmit = (e) => {
       e.preventDefault();
       save();
-      step++;
-      navigator();
-      focus();
+      visit({ kind: "checklist", step: step + 1, context });
     };
     root.querySelector("[data-back]")?.addEventListener("click", () => {
       save();
-      step--;
-      navigator();
-      focus();
+      history.back();
     });
     root.querySelector("[data-edit]")?.addEventListener("click", () => {
-      step = 1;
-      navigator();
-      focus();
+      visit({ kind: "checklist", step: 1, context });
     });
     root
       .querySelector("[data-print]")
       ?.addEventListener("click", () => window.print());
     root.querySelector("[data-reset]").onclick = () => {
-      context = {
-        goal: "restore",
-        provider: "tmobile",
-        plan: "postpaid",
-        role: "owner",
-        resources: Object.fromEntries(
-          Object.keys(resourceNames).map((k) => [k, "unknown"]),
-        ),
-        protections: { sim: "unknown", port: "unknown" },
-      };
-      step = 0;
-      navigator();
-      focus();
+      visit({ kind: "checklist", step: 0, context: defaultContext() }, { reset: true });
     };
   }
   function save() {
@@ -473,36 +504,54 @@ export async function mountRecoveryModule(
     );
   }
   function home() {
-    shell(
-      `<section class="plr-hero"><p class="plr-eyebrow">Phone lost. Keep the next step clear.</p><h1>Phone unavailable?<br>Start with what you still have.</h1><p>Understand the account access, proof and permissions your carrier’s public guidance describes—using only the resources you still have.</p><div class="plr-actions"><a class="plr-primary" href="${h(route("navigator"))}">Explore my recovery options</a><a class="plr-button" href="${h(route("practice"))}">Practice a fictional situation</a></div></section><div class="plr-grid">${[
-        [
-          "01",
-          "Choose your situation",
-          "Six US retail brands, with plan and account-role distinctions.",
-        ],
-        [
-          "02",
-          "See what is established",
-          "A documented step, an unresolved proof or conflicting instructions—each with its source.",
-        ],
-        [
-          "03",
-          "Keep a useful checklist",
-          "Print the questions and official links you may need, without sharing account details.",
-        ],
-      ]
-        .map(
-          ([n, t, p]) =>
-            `<article class="plr-card"><span class="plr-eyebrow">${n}</span><h2>${t}</h2><p>${p}</p></article>`,
-        )
-        .join(
-          "",
-        )}</div><p class="plr-note">Free, open source, and usable without an account. This tool provides information and practice; account actions stay with you and your carrier.</p><p>${catalog.providers.map((p) => h(p.name)).join(" · ")}</p>`,
-    );
+    root.classList.add("plr-landing");
+    const paths = Object.fromEntries(["home", "navigator", "practice", "evidence", "methodology", "study"]
+      .map(key => [key, h(route(key === "home" ? "" : key))]));
+    root.innerHTML = landingHTML({ ...paths, brand: h(brand) });
+    bindSize();
+    const entries = root.querySelectorAll("[data-entry]");
+    for (const button of entries) {
+      button.disabled = false;
+      button.onclick = async () => {
+        for (const entry of entries) entry.disabled = true;
+        const status = root.querySelector(".plr-load-status");
+        status.textContent = "Opening guidance…";
+        try {
+          if (!catalog) await loadData();
+          if (lifecycle.signal.aborted || !button.isConnected) return;
+          visit(button.dataset.entry === "story" ? { kind: "story" } : { kind: "quick", need: "secure" });
+        } catch {
+          catalog = null;
+          if (lifecycle.signal.aborted) return;
+          status.textContent = "Guided help couldn’t load. Try again or open an official device finder below.";
+          for (const entry of entries) entry.disabled = false;
+          button.focus();
+        }
+      };
+    }
   }
-  async function load() {
-    try {
-      root.innerHTML = '<p role="status">Loading the guidance catalog…</p>';
+  function openHelp() {
+    quickHelp({
+      screen,
+      visit,
+      root,
+      catalog,
+      shell,
+      route,
+      escape: h,
+      link,
+      signal: screenLife.signal,
+      openChecklist(provider, need, missingSMS) {
+        const draft = defaultContext();
+        draft.resources.sms = missingSMS ? "no" : "unknown";
+        draft.provider = provider;
+        draft.goal = need === "access" ? "restore" : need;
+        draft.plan = draft.role = "unknown";
+        visit({ kind: "checklist", step: 1, context: draft });
+      },
+    });
+  }
+  async function loadData() {
       const fetchJSON = async (n) => {
         const r = await fetch(dataPath + n, { cache: "no-store" });
         if (!r.ok) throw Error("A required guidance file could not be loaded.");
@@ -519,6 +568,13 @@ export async function mountRecoveryModule(
         tasks.some((t) => !t.choices?.some((c) => c.id === t.correctAnswer))
       )
         throw Error("The practice or research data is incomplete.");
+  }
+  async function load() {
+    if (view === "home") { enableHistory(); show(screen, false); return; }
+    try {
+      root.innerHTML = '<p role="status">Loading the guidance catalog…</p>';
+      await loadData();
+      if (view === "navigator") { enableHistory(); show(screen, false); return; }
       (
         ({
           navigator,
@@ -539,6 +595,9 @@ export async function mountRecoveryModule(
   await load();
   return {
     destroy() {
+      lifecycle.abort();
+      screenLife.abort();
+      screens.clear();
       study = null;
       context = null;
       window.removeEventListener("beforeprint", beforePrint);

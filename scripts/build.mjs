@@ -8,6 +8,7 @@ import {
 import { resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { validateCatalog } from "../src/engine.js";
+import { landingHTML } from "../src/landing.js";
 const escape = (v) =>
   String(v).replace(
     /[&<>"']/g,
@@ -29,7 +30,9 @@ export function renderFragment(
   view,
   { basePath = "/", brand = "Phone-Loss Recovery" } = {},
 ) {
-  return `<link rel="stylesheet" href="${basePath}assets/recovery.css"><section id="recovery-module" data-view="${view}" data-base="${basePath}" data-brand="${escape(brand)}"><p>Loading recovery guidance…</p><noscript><h1>Phone-Loss Recovery Navigator</h1><p>Enable JavaScript to use the local decision aid. Official procedures and their verification requirements remain with each provider. No account details are collected.</p><a href="https://doi.org/10.5281/zenodo.24301157">Read the documentation study</a></noscript></section><script type="module" src="${basePath}assets/boot.js"></script>`;
+  const landing = view === "home";
+  const routes = Object.fromEntries(Object.keys(views).map(v => [v, escape(basePath + (v === "home" ? "" : v + "/"))]));
+  return `<link rel="stylesheet" href="${basePath}assets/recovery.css"><section id="recovery-module" class="plr${landing ? " plr-landing" : ""}" data-view="${view}" data-base="${basePath}" data-brand="${escape(brand)}">${landing ? landingHTML({ ...routes, brand: escape(brand) }) : `<p>Loading recovery guidance…</p><noscript><h1>Phone-Loss Recovery Navigator</h1><p>Enable JavaScript to use the local decision aid. Official procedures and their verification requirements remain with each provider. No account details are collected.</p><a href="https://doi.org/10.5281/zenodo.24301157">Read the documentation study</a></noscript>`}</section><script type="module" src="${basePath}assets/boot.js"></script>`;
 }
 export function build({
   outDir = resolve(root, "dist/client"),
@@ -49,7 +52,7 @@ export function build({
   mkdirSync(outDir, { recursive: true });
   mkdirSync(resolve(outDir, "assets"), { recursive: true });
   mkdirSync(resolve(outDir, "data"), { recursive: true });
-  for (const name of ["engine.js", "study.js", "ui.js"])
+  for (const name of ["engine.js", "study.js", "ui.js", "quick-help.js", "landing.js"])
     cpSync(resolve(root, "src", name), resolve(outDir, "assets", name));
   cpSync(
     resolve(root, "src/styles.css"),

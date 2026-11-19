@@ -19,7 +19,7 @@ Open http://127.0.0.1:8788 . Use BASE_PATH=/phone-loss-recovery/ when building a
 
 ## Features and checks
 
-Four-stage navigator, printable checklist, filterable evidence, separate frozen research collection, twelve fictional practice tasks, and local study sessions with explicit JSON/CSV export. No automatic uploads or persistence.
+The home page accepts a short typed description or tap choices, recognizes supported carrier names and common goals locally, and links to official help. Optional English dictation requires on-device recognition and an installed language pack. The standalone preview also includes the four-stage navigator, printable checklist, filterable evidence, separate frozen research collection, twelve fictional practice tasks, and local study sessions with explicit JSON/CSV export. No automatic uploads or persistence.
 
 ```sh
 npm test

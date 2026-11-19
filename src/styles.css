@@ -326,3 +326,41 @@
     border: 1px solid #aaa;
   }
 }
+
+.plr-help { max-width: 42rem; margin: 1.5em auto; }
+.plr-help textarea { width: 100%; padding: 1em; font: inherit; line-height: 1.45; color: var(--plr-ink); background: white; border: 1px solid #847990; border-radius: 12px; resize: vertical; }
+.plr-help label { margin-bottom: .4em; }
+.plr-help small, .plr-context, .plr-secondary { color: var(--plr-muted); }
+.plr-help blockquote { margin: 1em 0 1.5em; padding: 1em 1.25em; background: var(--plr-tint); border-left: 4px solid var(--plr-purple); }
+.plr-choices { display: grid; gap: .6em; margin: 1em 0; }
+.plr-choices button { justify-content: flex-start; }
+.plr-help [hidden] { display: none; }
+
+
+/* Keep the homepage typography and controls in the original cream-and-purple system. */
+.plr-landing .plr-header { gap: .55em 1em; }
+.plr-landing .plr-header nav { column-gap: clamp(.85em, 2.2vw, 1.5em); row-gap: 0; }
+.plr-landing .plr-header nav a { display: inline-flex; align-items: center; min-height: 44px; }
+.plr-landing .plr-content { padding-block: clamp(1.2em, 4vw, 3em) 2.5em; }
+.plr-landing .plr-hero { padding-block: .75em 2em; }
+.plr-landing .plr-hero h1 { max-width: 21ch; margin: .35em 0; }
+.plr-landing .plr-hero > p:not(.plr-eyebrow) { max-width: 52ch; line-height: 1.5; }
+.plr-landing .plr-actions { margin-bottom: .6em; }
+.plr-landing .plr-hero small, .plr-landing .plr-grid p { color: var(--plr-muted); }
+.plr-landing .plr-grid h2 { margin: .4em 0 .25em; }
+.plr-landing .plr-grid p { margin: 0; }
+.plr-home-help { margin-top: 2em; border-top: 1px solid var(--plr-line); }
+.plr-home-help h2, .plr-home-help h3 { margin: 1em 0 .3em; }
+.plr-home-shortcuts { display: flex; align-items: center; flex-wrap: wrap; gap: .25em 1.2em; }
+.plr-home-shortcuts a, .plr-home-shortcuts button {
+  display: inline-flex; align-items: center; gap: .25em; min-height: 44px;
+  padding: .25em 0; border: 0; background: transparent; color: inherit;
+  text-decoration: underline; text-underline-offset: 4px;
+}
+.plr-home-shortcuts button:hover { color: var(--plr-purple); }
+.plr-landing .plr-finder-back, .plr-landing .plr-load-status:empty { display: none; }
+.plr-landing #plr-finders:target ~ .plr-finder-back { display: inline-block; }
+@media (max-width: 650px) {
+  .plr-landing .plr-header { padding-block: .85em; }
+  .plr-landing .plr-actions { gap: .65em; }
+}
