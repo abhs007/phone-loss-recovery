@@ -4,6 +4,8 @@ Understand your options. Find your next step.
 
 An independent research prototype for source-linked procedural guidance. This folder contains the website, original vector logo, survey instrument, local collection server, design notes and reproducible browser checks.
 
+Custom domain configuration: `sourcewayfinder.org`. See [domain status](cloudflare/DOMAIN.md) for verification status. The [original hosting address](https://sourcewayfinder.sourcewayfinder.workers.dev/) remains available.
+
 ## Run locally
 
 From the repository root, using Python 3:

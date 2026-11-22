@@ -1,6 +1,7 @@
 import schema from '../Product_Design/survey-schema.json' with {type:'json'};
 const headers={
  'Cache-Control':'no-store',
+ 'Strict-Transport-Security':'max-age=86400',
  'X-Content-Type-Options':'nosniff',
  'Referrer-Policy':'no-referrer',
  'Permissions-Policy':'camera=(), microphone=(), geolocation=()',
@@ -41,6 +42,11 @@ async function limitedBody(request){
 export default {
  async fetch(request,env){
   const url=new URL(request.url);
+  if (['GET','HEAD'].includes(request.method) && url.hostname==='www.sourcewayfinder.org') {
+   url.protocol='https:';url.hostname='sourcewayfinder.org';
+   return new Response(null,{status:308,headers:{...headers,Location:url.href}});
+  }
+  if(url.hostname==='sourcewayfinder.org' && url.protocol==='http:'){url.protocol='https:';return new Response(null,{status:308,headers:{...headers,Location:url.href}});}
   try {
    if(url.pathname==='/api/survey/status'&&request.method==='GET'){
     await env.DB.prepare('SELECT 1 FROM responses LIMIT 1').first();
