@@ -13,8 +13,8 @@ async function checkConnection() {
   try {
     const response = await fetch('/api/survey/status', {signal: AbortSignal.timeout(5000)});
     const data = await response.json();
-    if (!response.ok || data.version !== 'needs-v1' || data.storage !== 'local') throw new Error();
-    connection.textContent = 'Local research collection is available. Your answers are saved on this computer only when you submit.';
+    if (!response.ok || data.version !== 'needs-v1' || !['local','cloudflare'].includes(data.storage)) throw new Error();
+    connection.textContent = data.storage === 'local' ? 'Local research collection is available. Your answers are saved on this computer only when you submit.' : 'Responses are collected securely for this project. Your answers are sent only when you submit.';
     button.disabled = false;
   } catch {
     connection.textContent = 'Response collection is unavailable. Nothing has been sent. Please try again later.';

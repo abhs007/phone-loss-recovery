@@ -4,3 +4,9 @@ Survey_Research/.data/
 *.csv
 __pycache__/
 .DS_Store
+node_modules/
+.wrangler/
+dist/
+.dev.vars*
+.env*
+exports/

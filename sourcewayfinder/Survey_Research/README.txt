@@ -3,7 +3,7 @@ Local implementation, November 21, 2026
 
 STATUS
 Integrated into Product_Design/survey.html, linked from the home page and footer.
-Working local collection server and CSV export. Not publicly hosted.
+The Python server provides local collection and CSV export. A separate Cloudflare Worker/D1 implementation is documented in ../cloudflare/README.md.
 No real participants or findings. QA uses a disposable database with synthetic records, deleted after testing.
 
 RUN LOCALLY
@@ -37,9 +37,8 @@ A convenience sample cannot establish nationwide prevalence or represent all old
 A later usability study should use defined tasks, independent expected outcomes, and observed completion/understanding rather than favorable opinions alone.
 Before collecting data for a formal manuscript, establish the applicable venue/institution ethics requirements and document the determination. No review approval or exemption is claimed.
 
-PUBLIC COLLECTION REQUIREMENTS STILL OPEN
-Choose a hosting/data account controlled by the project owner. Deploy a production endpoint with HTTPS, private database access, request-size validation, abuse controls, backups and retention/deletion handling. Update the participant notice for the actual hosting/logging and retention policy. Confirm consent and response export in the deployed environment before inviting respondents. No hosting account, publication, or public URL has been created by this work.
-Do not upload response databases, exports or identifiers as public website assets or research examples.
+PUBLIC COLLECTION
+The Cloudflare deployment has its own survey endpoint, private D1 database, rate limits, privacy notice and 180-day active-database cleanup. See ../cloudflare/README.md for authenticated administration, export and production check instructions. Keep downloaded raw exports private and delete within 180 days. This Python server remains local-only.
 
 VERIFICATION
 See QA_results.json. Checks include consent and server validation, retries/idempotency, unavailable service behavior, private-file routing, CSV formula escaping, and reflow. Passing these checks does not establish accessibility conformance, security of a future production deployment, or user-research findings.

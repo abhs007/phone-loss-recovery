@@ -33,7 +33,7 @@ The phone preview covers Verizon consumer postpaid SIM Protection, not comprehen
 
 Automatic discovery, source synchronization, issue delivery, broader coverage and developer access remain planned. No independent user outcomes or accuracy improvements have been established. Full accessibility and production security review remain outstanding.
 
-This upload does not replace the existing Phone-Loss Recovery homepage or deploy the survey backend. GitHub Pages cannot execute the Python collection server. Public collection requires production hosting, an appropriate privacy notice, abuse controls, and deployed verification before recruitment.
+Cloudflare hosting uses a Worker and private D1 database. See [cloudflare/README.md](cloudflare/README.md) for deployment, retention, and authenticated CSV export. GitHub Pages cannot run the Python collection server. The existing Phone-Loss Recovery homepage remains a separate site.
 
 SourceWayfinder is intended to remain free for the public. Domain and trademark availability have not been established. See [Product_Design/Design_Review.txt](Product_Design/Design_Review.txt) for design checks and limitations.
 
