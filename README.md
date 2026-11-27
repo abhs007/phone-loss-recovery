@@ -1,5 +1,7 @@
 # Phone-Loss Recovery Navigator
 
+> **Development has moved to [SourceWayfinder Platform](https://github.com/abhs007/sourcewayfinder-platform).** This repository is archived to preserve its Git history, research references and existing demo links. The original navigator and website/survey source are also preserved in the active repository under [`legacy/`](https://github.com/abhs007/sourcewayfinder-platform/tree/implementation/platform-foundation/legacy). The live website and survey continue at [sourcewayfinder.org](https://sourcewayfinder.org/).
+
 Evidence-linked guidance for phone loss across AT&T, T-Mobile, Verizon, Google Fi, Visible and US Mobile. It separates credential recovery, account access, protection removal and completed operations. Unknown is not impossible recovery.
 
 Demo: https://abhs007.github.io/phone-loss-recovery/ . Source: https://github.com/abhs007/phone-loss-recovery . Author: Abhishek Vaishnav, Independent Researcher; ORCID 0009-0008-6318-8190.
